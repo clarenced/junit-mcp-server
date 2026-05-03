@@ -3,6 +3,21 @@
 An MCP (Model Context Protocol) server that exposes JUnit test discovery and execution as tools,
 allowing AI coding agents to run tests directly without relying on shell commands.
 
+## Why
+
+When an LLM needs to run tests today, it typically shells out to `mvn test` or `./gradlew test`,
+captures the raw terminal output, parses it as plain text, and forwards that interpretation to the
+user. This approach has three problems: the output is verbose and wastes tokens, text parsing is
+fragile and error-prone, and the result leaves room for misinterpretation.
+
+**junit-mcp-server connects the LLM directly to the JUnit Platform API** instead of going through
+the command line. Test results come back as structured JSON with exact pass/fail counts, failure
+causes, and stack traces — nothing more. The benefits:
+
+- **Fewer tokens consumed** — the agent receives only the data it needs, not pages of build logs
+- **More precise responses** — structured output leaves no room for parsing ambiguity or misreading
+- **No dependency on build tool output format** — works regardless of how Gradle or Maven formats its console output
+
 ## How it works
 
 On startup the server detects the build tool (Gradle or Maven), extracts the full
