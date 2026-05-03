@@ -1,0 +1,92 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Licensed to the Apache Software Foundation (ASF) under one
+# or more contributor license agreements.  See the NOTICE file
+# distributed with this work for additional information
+# regarding copyright ownership.  The ASF licenses this file
+# to you under the Apache License, Version 2.0 (the
+# "License"); you may not use this file except in compliance
+# with the License.  You may obtain a copy of the License at
+#
+#    https://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing,
+# software distributed under the License is distributed on an
+# "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+# KIND, either express or implied.  See the License for the
+# specific language governing permissions and limitations
+# under the License.
+# ----------------------------------------------------------------------------
+
+# ----------------------------------------------------------------------------
+# Apache Maven Wrapper startup batch script, version 3.3.2
+# ----------------------------------------------------------------------------
+
+# If JAVA_HOME is set, use it, otherwise rely on PATH
+if [ -n "$JAVA_HOME" ]; then
+    JAVACMD="$JAVA_HOME/bin/java"
+else
+    JAVACMD="$(command -v java)"
+fi
+
+if [ ! -x "$JAVACMD" ] && [ ! -f "$JAVACMD" ]; then
+    echo "Error: JAVA_HOME is not set and no 'java' command could be found in your PATH." >&2
+    echo "Please set the JAVA_HOME variable in your environment to match the" >&2
+    echo "location of your Java installation." >&2
+    exit 1
+fi
+
+# Resolve the real path of mvnw
+SCRIPT="$0"
+while [ -h "$SCRIPT" ]; do
+    ls_out=$(ls -ld "$SCRIPT")
+    link=$(expr "$ls_out" : '.*-> \(.*\)$')
+    if expr "$link" : '/.*' > /dev/null; then
+        SCRIPT="$link"
+    else
+        SCRIPT=$(dirname "$SCRIPT")/"$link"
+    fi
+done
+MAVEN_PROJECTBASEDIR=$(dirname "$SCRIPT")
+MAVEN_PROJECTBASEDIR=$(cd "$MAVEN_PROJECTBASEDIR" && pwd)
+
+MAVEN_OPTS="${MAVEN_OPTS}"
+
+WRAPPER_PROPERTIES="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.properties"
+WRAPPER_JAR="$MAVEN_PROJECTBASEDIR/.mvn/wrapper/maven-wrapper.jar"
+
+# Read distributionUrl from wrapper properties
+DISTRIBUTION_URL=$(grep "^distributionUrl" "$WRAPPER_PROPERTIES" | cut -d= -f2-)
+
+# Determine Maven home
+MAVEN_USER_HOME="${MAVEN_USER_HOME:-$HOME/.m2}"
+MAVEN_HOME_SUBDIR="wrapper/dists/$(basename "$DISTRIBUTION_URL" .zip)"
+MAVEN_HOME="$MAVEN_USER_HOME/$MAVEN_HOME_SUBDIR/$(basename "$DISTRIBUTION_URL" -bin.zip)"
+
+if [ ! -d "$MAVEN_HOME" ]; then
+    echo "Downloading Maven from $DISTRIBUTION_URL"
+    TEMP_DIR=$(mktemp -d)
+    TEMP_ZIP="$TEMP_DIR/maven.zip"
+
+    if command -v curl > /dev/null 2>&1; then
+        curl -fsSL -o "$TEMP_ZIP" "$DISTRIBUTION_URL"
+    elif command -v wget > /dev/null 2>&1; then
+        wget -q -O "$TEMP_ZIP" "$DISTRIBUTION_URL"
+    else
+        echo "Error: Neither curl nor wget is available." >&2
+        exit 1
+    fi
+
+    mkdir -p "$MAVEN_USER_HOME/wrapper/dists/$(basename "$DISTRIBUTION_URL" .zip)"
+    unzip -q "$TEMP_ZIP" -d "$MAVEN_USER_HOME/wrapper/dists/$(basename "$DISTRIBUTION_URL" .zip)"
+    rm -rf "$TEMP_DIR"
+fi
+
+MAVEN_CMD="$MAVEN_HOME/bin/mvn"
+
+if [ ! -x "$MAVEN_CMD" ]; then
+    echo "Error: Maven executable not found at $MAVEN_CMD" >&2
+    exit 1
+fi
+
+exec "$MAVEN_CMD" "$@"
