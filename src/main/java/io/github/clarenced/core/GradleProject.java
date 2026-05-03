@@ -1,6 +1,6 @@
 package io.github.clarenced.core;
 
-import io.github.clarenced.App;
+import io.github.clarenced.JUnitMcpServer;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,7 +33,7 @@ public class GradleProject extends AbstractProject {
 
     @Override
     protected String detectClasspath(Path projectRoot) throws IOException, InterruptedException {
-        InputStream is = App.class.getResourceAsStream("/init.gradle");
+        InputStream is = JUnitMcpServer.class.getResourceAsStream("/init.gradle");
         Path initScript = Files.createTempFile("junit-mcp-init", ".gradle");
         Files.copy(is, initScript, StandardCopyOption.REPLACE_EXISTING);
 

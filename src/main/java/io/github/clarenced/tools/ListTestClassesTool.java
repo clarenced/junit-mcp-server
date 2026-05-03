@@ -28,7 +28,7 @@ public class ListTestClassesTool implements McpTool {
         return McpServerFeatures.SyncToolSpecification.builder()
                 .tool(McpSchema.Tool.builder()
                         .name("list_tests_classes")
-                        .description("List all test classes")
+                        .description("List all test classes in the project.")
                         .inputSchema(new McpSchema.JsonSchema("object", Map.of(), List.of(), null, null, null))
                         .build())
                 .callHandler((exchange, request) -> handle())

@@ -1,6 +1,6 @@
 package io.github.clarenced.core;
 
-import io.github.clarenced.App;
+import io.github.clarenced.JUnitMcpServer;
 import io.github.clarenced.spi.Project;
 
 import java.io.File;
@@ -24,7 +24,7 @@ public abstract class AbstractProject implements Project {
         }
         urls[entries.length]     = testClasses.toFile().toURI().toURL();
         urls[entries.length + 1] = mainClasses.toFile().toURI().toURL();
-        return new URLClassLoader(urls, App.class.getClassLoader());
+        return new URLClassLoader(urls, JUnitMcpServer.class.getClassLoader());
     }
 
     protected abstract String detectClasspath(Path projectRoot) throws IOException, InterruptedException;

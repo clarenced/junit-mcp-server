@@ -1,0 +1,7 @@
+rootProject {
+    tasks.register("printClasspath") {
+        doLast {
+            println configurations.testRuntimeClasspath.asPath
+        }
+    }
+}
