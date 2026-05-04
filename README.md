@@ -12,7 +12,9 @@ fragile and error-prone, and the result leaves room for misinterpretation.
 
 **junit-mcp-server connects the LLM directly to the JUnit Platform API** instead of going through
 the command line. Test results come back as structured JSON with exact pass/fail counts, failure
-causes, and stack traces — nothing more. The benefits:
+causes, and stack traces — nothing more. 
+
+The benefits:
 
 - **Fewer tokens consumed** — the agent receives only the data it needs, not pages of build logs
 - **More precise responses** — structured output leaves no room for parsing ambiguity or misreading
@@ -23,7 +25,10 @@ causes, and stack traces — nothing more. The benefits:
 On startup the server detects the build tool (Gradle or Maven), extracts the full
 `testRuntimeClasspath` by invoking the build tool once, loads everything into a `URLClassLoader`,
 and registers MCP tools backed by the JUnit Platform Launcher API.
+
 The agent never needs to call `gradle test` or `mvn test` — it calls the MCP tools instead.
+
+Check the [ARCHITECTURE.md](./ARCHITECTURE.md) for more.
 
 ## Requirements
 
