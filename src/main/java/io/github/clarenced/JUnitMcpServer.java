@@ -59,6 +59,7 @@ public class JUnitMcpServer {
         List.of(
                 new ListTestClassesTool(testClassPath, urlClassLoader),
                 new ListTestsInClassTool(urlClassLoader),
+                new RunAllTestsTool(runner, testClassPath),
                 new RunTestMethodInClassTool(runner),
                 new RunTestsInClassTool(runner)
         ).forEach(tool -> junitServer.addTool(tool.specification()));

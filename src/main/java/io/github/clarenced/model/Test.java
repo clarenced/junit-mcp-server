@@ -16,6 +16,7 @@ import java.util.Objects;
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
 public final class Test {
+    private final String uniqueId;
     private final String name;
     private String status;
     private long started;
@@ -23,7 +24,8 @@ public final class Test {
     private boolean isSkipped;
     private Failure failure;
 
-    public Test(String name) {
+    public Test(String uniqueId, String name) {
+        this.uniqueId = uniqueId;
         this.name = name;
         this.status = "";
         this.started = System.currentTimeMillis();
@@ -35,6 +37,8 @@ public final class Test {
     public boolean isFailed()  { return status.equals("failed"); }
     public boolean isAborted() { return status.equals("aborted"); }
     public boolean isSkipped() { return isSkipped; }
+
+    public String uniqueId() { return uniqueId; }
 
     @JsonProperty("name")
     public String name() { return name; }
@@ -74,13 +78,13 @@ public final class Test {
         if (obj == this) return true;
         if (obj == null || obj.getClass() != this.getClass()) return false;
         var that = (Test) obj;
-        return Objects.equals(this.name, that.name) &&
+        return Objects.equals(this.uniqueId, that.uniqueId) &&
                Objects.equals(this.status, that.status) &&
                Objects.equals(this.failure, that.failure);
     }
 
     @Override
-    public int hashCode() { return Objects.hash(name, status, failure); }
+    public int hashCode() { return Objects.hash(uniqueId, status, failure); }
 
     private String convertStackTrace(Throwable stackTrace) {
         StringWriter sw = new StringWriter();

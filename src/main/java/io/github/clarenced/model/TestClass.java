@@ -14,23 +14,27 @@ import java.util.concurrent.CopyOnWriteArrayList;
     isGetterVisibility = JsonAutoDetect.Visibility.NONE
 )
 public final class TestClass {
+    private final String uniqueId;
     private final String className;
     private final List<Test> tests;
     private final long started;
     private long finished;
     private String status;
 
-    public TestClass(String className) {
-        this(className, new CopyOnWriteArrayList<>(), System.currentTimeMillis(), 0, "");
+    public TestClass(String uniqueId, String className) {
+        this(uniqueId, className, new CopyOnWriteArrayList<>(), System.currentTimeMillis(), 0, "");
     }
 
-    private TestClass(String className, List<Test> tests, long started, long finished, String status) {
+    private TestClass(String uniqueId, String className, List<Test> tests, long started, long finished, String status) {
+        this.uniqueId = uniqueId;
         this.className = className;
         this.tests = tests;
         this.started = started;
         this.finished = finished;
         this.status = status;
     }
+
+    public String uniqueId() { return uniqueId; }
 
     @JsonProperty("className")
     public String className() { return className; }
@@ -68,18 +72,18 @@ public final class TestClass {
         };
     }
 
-    public void testIsStarted(String uniqueId) { tests.add(new Test(uniqueId)); }
+    public void testIsStarted(String uniqueId, String methodName) { tests.add(new Test(uniqueId, methodName)); }
 
     public void testIsFinished(String uniqueId, TestExecutionResult testExecutionResult) {
         tests.stream()
-            .filter(test -> test.name().equals(uniqueId))
+            .filter(test -> test.uniqueId().equals(uniqueId))
             .findFirst()
             .ifPresent(test -> test.finished(testExecutionResult));
     }
 
     public void testIsSkipped(String uniqueId) {
         tests.stream()
-            .filter(test -> test.name().equals(uniqueId))
+            .filter(test -> test.uniqueId().equals(uniqueId))
             .findFirst()
             .ifPresent(Test::skipped);
     }
