@@ -1,6 +1,8 @@
 package io.github.clarenced;
 
+import io.github.clarenced.core.JUnitDiscoverer;
 import io.github.clarenced.core.JUnitRunner;
+import io.github.clarenced.core.ManagedClassLoader;
 import io.github.clarenced.core.ProjectDetectors;
 import io.github.clarenced.spi.Project;
 import io.github.clarenced.tools.*;
@@ -13,7 +15,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -32,17 +33,22 @@ public class JUnitMcpServer {
         Project project = ProjectDetectors.detect(projectDir);
         LOG.info("Detected project type: {}", project.getClass().getSimpleName());
 
-        // Step 2 — build the URLClassLoader for the target project.
+        // Step 2 — build the ManagedClassLoader for the target project.
         // This runs the build tool (gradlew/mvnw) to extract the testRuntimeClasspath, then
         // loads test classes, main classes, and all dependencies into a single URLClassLoader.
         // The classloader is parented to JUnitMcpServer's classloader so JUnit's ServiceLoader
         // can still find the TestEngine (junit-jupiter-engine) bundled inside this jar.
-        URLClassLoader urlClassLoader = project.getClassLoader(projectDir);
+        // ManagedClassLoader transparently rebuilds this URLClassLoader (reusing the cached
+        // classpath) whenever the compiled test/main class directories change, and supports a
+        // full reload (re-invoking the build tool) via reload_project.
+        ManagedClassLoader managedClassLoader = new ManagedClassLoader(project, projectDir);
         Path testClassPath = project.getTestClassesPath(projectDir);
 
-        // Step 3 — create the JUnitRunner, which owns the execution lifecycle:
-        // set context classloader → open LauncherSession → discover → execute → collect report.
-        JUnitRunner runner = new JUnitRunner(urlClassLoader);
+        // Step 3 — create the JUnitDiscoverer and JUnitRunner, which own the discovery/execution
+        // lifecycle: fetch the (possibly rebuilt) classloader → set context classloader →
+        // open LauncherSession → discover/execute → collect report.
+        JUnitDiscoverer discoverer = new JUnitDiscoverer(managedClassLoader);
+        JUnitRunner runner = new JUnitRunner(managedClassLoader);
 
         // Step 4 — create the MCP server over stdio transport.
         McpSyncServer junitServer = McpServer.sync(new StdioServerTransportProvider(McpJsonDefaults.getMapper()))
@@ -57,15 +63,20 @@ public class JUnitMcpServer {
         // Step 5 — register all tools. Each tool is self-contained: it holds its own
         // name, description, input schema, and handler logic.
         List.of(
-                new ListTestClassesTool(testClassPath, urlClassLoader),
-                new ListTestsInClassTool(urlClassLoader),
+                new ListTestClassesTool(testClassPath, discoverer),
+                new ListTestsInClassTool(discoverer),
                 new RunAllTestsTool(runner, testClassPath),
                 new RunTestMethodInClassTool(runner),
-                new RunTestsInClassTool(runner)
+                new RunTestsInClassTool(runner),
+                new ReloadProjectTool(managedClassLoader)
         ).forEach(tool -> junitServer.addTool(tool.specification()));
 
-        // Step 6 — register a shutdown hook so the MCP server is cleanly closed on JVM exit.
-        Runtime.getRuntime().addShutdownHook(new Thread(junitServer::close));
+        // Step 6 — register a shutdown hook so the MCP server and classloader are cleanly
+        // closed on JVM exit.
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            junitServer.close();
+            managedClassLoader.close();
+        }));
     }
 
     private static String getProjectPath(String[] args) {

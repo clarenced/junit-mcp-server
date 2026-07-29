@@ -5,18 +5,16 @@ import org.junit.platform.engine.TestExecutionResult;
 import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import java.net.URLClassLoader;
-
 public class JUnitRunner {
 
-    private final URLClassLoader classLoader;
+    private final ManagedClassLoader classLoader;
 
-    public JUnitRunner(URLClassLoader classLoader) {
+    public JUnitRunner(ManagedClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
     public TestReport run(LauncherDiscoveryRequest request) {
-        Thread.currentThread().setContextClassLoader(classLoader);
+        Thread.currentThread().setContextClassLoader(classLoader.get());
         Listener listener = new Listener();
         try (LauncherSession session = LauncherFactory.openSession()) {
             Launcher launcher = session.getLauncher();

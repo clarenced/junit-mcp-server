@@ -27,12 +27,12 @@ public class GradleProject extends AbstractProject {
     }
 
     @Override
-    protected Path getMainClassesPath(Path projectRoot) {
+    public Path getMainClassesPath(Path projectRoot) {
         return projectRoot.resolve("build/classes/java/main");
     }
 
     @Override
-    protected String detectClasspath(Path projectRoot) throws IOException, InterruptedException {
+    public String detectClasspath(Path projectRoot) throws IOException, InterruptedException {
         InputStream is = JUnitMcpServer.class.getResourceAsStream("/init.gradle");
         Path initScript = Files.createTempFile("junit-mcp-init", ".gradle");
         Files.copy(is, initScript, StandardCopyOption.REPLACE_EXISTING);

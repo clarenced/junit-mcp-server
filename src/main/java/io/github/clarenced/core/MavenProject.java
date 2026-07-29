@@ -23,12 +23,12 @@ public class MavenProject extends AbstractProject {
     }
 
     @Override
-    protected Path getMainClassesPath(Path projectRoot) {
+    public Path getMainClassesPath(Path projectRoot) {
         return projectRoot.resolve("target/classes");
     }
 
     @Override
-    protected String detectClasspath(Path projectRoot) throws IOException, InterruptedException {
+    public String detectClasspath(Path projectRoot) throws IOException, InterruptedException {
         Path outputFile = Files.createTempFile("junit-mcp-maven-cp", ".txt");
 
         String mvnw = Files.exists(projectRoot.resolve("mvnw")) ? "./mvnw" : "mvn";

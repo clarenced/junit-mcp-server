@@ -6,7 +6,6 @@ import org.junit.platform.launcher.*;
 import org.junit.platform.launcher.core.LauncherDiscoveryRequestBuilder;
 import org.junit.platform.launcher.core.LauncherFactory;
 
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,14 +15,14 @@ import static org.junit.platform.engine.discovery.DiscoverySelectors.selectClass
 
 public class JUnitDiscoverer {
 
-    private final URLClassLoader classLoader;
+    private final ManagedClassLoader classLoader;
 
-    public JUnitDiscoverer(URLClassLoader classLoader) {
+    public JUnitDiscoverer(ManagedClassLoader classLoader) {
         this.classLoader = classLoader;
     }
 
     public List<TestDiscovery> discoverAll(Path testClassPath) {
-        Thread.currentThread().setContextClassLoader(classLoader);
+        Thread.currentThread().setContextClassLoader(classLoader.get());
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.discoveryRequest()
                 .selectors(DiscoverySelectors.selectClasspathRoots(Set.of(testClassPath)))
                 .build();
@@ -31,7 +30,7 @@ public class JUnitDiscoverer {
     }
 
     public List<TestDiscovery> discoverInClass(String fullClassName) {
-        Thread.currentThread().setContextClassLoader(classLoader);
+        Thread.currentThread().setContextClassLoader(classLoader.get());
         LauncherDiscoveryRequest request = LauncherDiscoveryRequestBuilder.discoveryRequest()
                 .selectors(selectClass(fullClassName))
                 .build();

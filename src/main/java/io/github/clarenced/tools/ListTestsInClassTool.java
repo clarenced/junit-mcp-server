@@ -8,7 +8,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
 
-import java.net.URLClassLoader;
 import java.util.List;
 import java.util.Map;
 
@@ -40,10 +39,6 @@ public record ListTestsInClassTool(JUnitDiscoverer discoverer) implements McpToo
 
     private static final Logger LOG = LoggerFactory.getLogger(ListTestsInClassTool.class);
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    public ListTestsInClassTool(URLClassLoader discoverer) {
-        this(new JUnitDiscoverer(discoverer));
-    }
 
     @Override
     public McpServerFeatures.SyncToolSpecification specification() {

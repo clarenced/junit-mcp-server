@@ -6,7 +6,6 @@ import io.modelcontextprotocol.server.McpServerFeatures;
 import io.modelcontextprotocol.spec.McpSchema;
 import tools.jackson.databind.ObjectMapper;
 
-import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.util.List;
 import java.util.Map;
@@ -30,10 +29,6 @@ import java.util.Map;
 public record ListTestClassesTool(Path testClassPath, JUnitDiscoverer discoverer) implements McpTool {
 
     private static final ObjectMapper MAPPER = new ObjectMapper();
-
-    public ListTestClassesTool(Path testClassPath, URLClassLoader discoverer) {
-        this(testClassPath, new JUnitDiscoverer(discoverer));
-    }
 
     @Override
     public McpServerFeatures.SyncToolSpecification specification() {

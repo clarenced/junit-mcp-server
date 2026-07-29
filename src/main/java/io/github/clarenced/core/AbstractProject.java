@@ -13,7 +13,11 @@ public abstract class AbstractProject implements Project {
 
     @Override
     public URLClassLoader getClassLoader(Path projectRoot) throws IOException, InterruptedException {
-        String classpath = detectClasspath(projectRoot);
+        return getClassLoader(projectRoot, detectClasspath(projectRoot));
+    }
+
+    @Override
+    public URLClassLoader getClassLoader(Path projectRoot, String classpath) throws IOException {
         Path testClasses = getTestClassesPath(projectRoot);
         Path mainClasses = getMainClassesPath(projectRoot);
 
@@ -27,7 +31,9 @@ public abstract class AbstractProject implements Project {
         return new URLClassLoader(urls, JUnitMcpServer.class.getClassLoader());
     }
 
-    protected abstract String detectClasspath(Path projectRoot) throws IOException, InterruptedException;
+    @Override
+    public abstract String detectClasspath(Path projectRoot) throws IOException, InterruptedException;
 
-    protected abstract Path getMainClassesPath(Path projectRoot);
+    @Override
+    public abstract Path getMainClassesPath(Path projectRoot);
 }
