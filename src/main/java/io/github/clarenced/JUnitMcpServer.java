@@ -20,9 +20,16 @@ import java.util.List;
 
 public class JUnitMcpServer {
 
+    static {
+        // stdout is the MCP JSON-RPC channel: logback must never print its status messages there.
+        // Must run before the first LoggerFactory call, hence a static block above LOG.
+        System.setProperty("logback.statusListenerClass", "ch.qos.logback.core.status.NopStatusListener");
+    }
+
     private static final Logger LOG = LoggerFactory.getLogger(JUnitMcpServer.class);
 
-    static void main(String[] args) throws IOException, InterruptedException {
+    // todo <java 25, ajouter le "public"
+   public static void main(String[] args) throws IOException, InterruptedException {
         String projectPath = getProjectPath(args);
         LOG.info("Starting server at: {}", projectPath);
 
